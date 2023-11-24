@@ -32,3 +32,11 @@ export const showStateTrigger = trigger('showState', [
         }))
     ]),
 ])
+
+export const clickConfirmationTrigger = trigger('clickConfirmation', [
+    transition('* => checked', [
+        animate('400ms ease-in', style({
+            transform: 'scale(0.22)'
+        }))
+    ])
+])
