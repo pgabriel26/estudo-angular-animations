@@ -19,9 +19,10 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
       filter: 'brightness(92%)'
     })),
     transition('default => highlighted', [
+      animate('100ms ease-out' , 
       style({
         transform: 'scaled(1.02)'
-      }),
+      })),
       animate(200)
     ])
   ])]
