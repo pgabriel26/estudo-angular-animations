@@ -4,7 +4,14 @@
       Criar nova tarefa
     </button>
   </div>
-  <form  [@formularioValido]="formulario.valid ? 'valid' : 'invalid'" @showState class="formulario ff-prompt" [formGroup]="formulario" *ngIf="formAberto">
+  <form 
+    [@formularioValido]="formulario.valid ? 'valid' : 'invalid'" 
+    @showState 
+    [@tremolencia]="formulario.value"
+    [formGroup]="formulario" 
+    class="formulario ff-prompt" 
+    *ngIf="formAberto"
+  >
     <label for="descricao">Descrição da tarefa</label>
     <input required type="text" formControlName="descricao" placeholder="Digite a tarefa"
       [ngClass]="campoValidado('descricao')">
