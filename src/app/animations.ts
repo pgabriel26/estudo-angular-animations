@@ -1,4 +1,4 @@
-import { animate, group, keyframes, state, style, transition, trigger } from '@angular/animations';
+import { animate, group, keyframes, query, state, style, transition, trigger } from '@angular/animations';
 
 export const highlightedStateTrigger = trigger('highlightedState', [
     state('default', style({
@@ -58,29 +58,31 @@ export const filtroTrigger = trigger('animacaoDoFiltro', [
 
 export const botaoTrigger = trigger('formularioValido', [
     transition('invalid => valid', [
-        group([
+        query('#botao-salvar', [ 
+            group([
+                animate(200, style({
+                    backgroundColor: 'green'
+                })),
+                animate(100, style({
+                    transform: 'scale(1.8)'
+                })),
+            ]),
             animate(200, style({
-                backgroundColor: 'green'
+                backgroundColor: 'scale(1)'
             })),
-            animate(100, style({
-                transform: 'scale(1.8)'
-            })),
-        ]),
-        animate(200, style({
-            backgroundColor: 'scale(1)'
-        }))
+            transition('valid => invalid', [
+                group([
+                    animate(200, style({
+                        backgroundColor: 'grey'
+                    })),
+                    animate(100, style({
+                        transform: 'scale(0.8)'
+                    })),
+                ]),
+                animate(200, style({
+                    backgroundColor: 'scale(1)'
+                }))
+            ])
+        ])
     ]),
-    transition('valid => invalid', [
-        group([
-            animate(200, style({
-                backgroundColor: 'grey'
-            })),
-            animate(100, style({
-                transform: 'scale(0.8)'
-            })),
-        ]),
-        animate(200, style({
-            backgroundColor: 'scale(1)'
-        }))
-    ])
 ])
