@@ -1,4 +1,4 @@
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { animate, keyframes, state, style, transition, trigger } from '@angular/animations';
 
 export const highlightedStateTrigger = trigger('highlightedState', [
     state('default', style({
@@ -38,5 +38,20 @@ export const clickConfirmationTrigger = trigger('clickConfirmation', [
         animate('400ms ease-in', style({
             transform: 'scale(0.22)'
         }))
+    ])
+])
+
+export const filtroTrigger = trigger('animacaoDoFiltro', [
+    transition(':enter', [
+        style({opacity: 0, width: 0}),
+        animate('400ms ease-out', keyframes([
+            style({ offset: 0, opacity: 0, width: 0 }),
+            style({ offset: 0.5, opacity: 0.5, width: '*', backgroundColor: 'red' }),
+            style({ offset: 1, opacity: 1, width: '*', backgroundColor: 'blue' })
+        ]))
+    ]),
+    transition(':leave', [
+        animate('400ms ease-out', 
+        style({ opacity: 0, width: 0 }))
     ])
 ])
