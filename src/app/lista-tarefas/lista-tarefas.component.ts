@@ -1,16 +1,17 @@
+import { Tarefa } from './../interface/tarefa';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { TarefaService } from 'src/app/service/tarefa.service';
-import { Tarefa } from '../interface/tarefa';
-import { botaoTrigger, clickConfirmationTrigger, filtroTrigger, highlightedStateTrigger, shakeTrigger, showStateTrigger } from '../animations';
+// import { Tarefa } from '../interface/tarefa';
+import { botaoTrigger, clickConfirmationTrigger, estadoDaListaTrigger, filtroTrigger, highlightedStateTrigger, shakeTrigger, showStateTrigger } from '../animations';
+import { Subscription } from 'rxjs/internal/Subscription';
 
 @Component({
   selector: 'app-lista-tarefas',
   templateUrl: './lista-tarefas.component.html',
   styleUrls: ['./lista-tarefas.component.css'],
-  animations: [highlightedStateTrigger, showStateTrigger, clickConfirmationTrigger, filtroTrigger, botaoTrigger, shakeTrigger]
+  animations: [highlightedStateTrigger, showStateTrigger, clickConfirmationTrigger, filtroTrigger, botaoTrigger, shakeTrigger, estadoDaListaTrigger]
 })
 export class ListaTarefasComponent implements OnInit {
   listaTarefas: Tarefa[] = [];
@@ -18,9 +19,9 @@ export class ListaTarefasComponent implements OnInit {
   categoria: string = '';
   validado: boolean = false;
   indexTarefa = -1;
-  idTarefa: number = 0
   campoBusca: string ='';
   tarefasFiltradas: Tarefa[] = [];
+  TarefaSubscription: Subscription = new Subscription;
 
   formulario: FormGroup = this.fomBuilder.group({
     id: [0],
@@ -32,16 +33,15 @@ export class ListaTarefasComponent implements OnInit {
 
   constructor(
     private service: TarefaService,
-    private router: Router,
     private fomBuilder: FormBuilder
   ) {}
 
-  ngOnInit(): Tarefa[] {
-    this.service.listar(this.categoria).subscribe((listaTarefas) => {
-      this.listaTarefas = listaTarefas;
-      this.tarefasFiltradas = listaTarefas;
-    });
-    return this.tarefasFiltradas;
+  ngOnInit(): void {
+    this.service.listar()
+    this.TarefaSubscription = this.service.tarefa$.subscribe(tarefas => {
+      this.listaTarefas = tarefas;
+      this.tarefasFiltradas = tarefas;
+    })
   }
 
   filtrarTarefasPorDescricao(descricao: string) {
@@ -68,22 +68,24 @@ export class ListaTarefasComponent implements OnInit {
   }
 
   editarTarefa() {
-    this.service.editar(this.formulario.value).subscribe({
-      complete: () => this.atualizarComponente(),
-    });
+    if(this.formulario.valid) {
+      const tarefaEditada = this.formulario.value;
+      this.service.editar(tarefaEditada, true);
+      this.resetarFormulario();
+    }
   }
 
   criarTarefa() {
-    this.service.criar(this.formulario.value).subscribe({
-      complete: () => this.atualizarComponente(),
-    });
+    if(this.formulario.valid) {
+      const novaTarefa = this.formulario.value;
+      this.service.criar(novaTarefa);
+      this.resetarFormulario();
+    }
   }
 
-  excluirTarefa(id: number) {
-    if (id) {
-      this.service.excluir(id).subscribe({
-        complete: () => this.recarregarComponente(),
-      });
+  excluirTarefa(tarefa: Tarefa) {
+    if (tarefa.id){
+      this.service.excluir(tarefa.id);
     }
   }
 
@@ -101,12 +103,8 @@ export class ListaTarefasComponent implements OnInit {
     });
   }
 
-  recarregarComponente() {
-    this.router.navigate(['/listaTarefas']);
-  }
 
   atualizarComponente() {
-    this.recarregarComponente();
     this.resetarFormulario();
   }
 
@@ -123,19 +121,8 @@ export class ListaTarefasComponent implements OnInit {
     this.formAberto = true;
   }
 
-  finalizarTarefa(id: number) {
-    this.idTarefa = id;
-    this.service.buscarPorId(id!).subscribe((tarefa) => {
-      this.service.atualizarStatusTarefa(tarefa).subscribe(() => {
-        this.listarAposCheck();
-      });
-    });
-  }
-
-  listarAposCheck() {
-    this.service.listar(this.categoria).subscribe((listaTarefas) => {
-      this.tarefasFiltradas = listaTarefas;
-    });
+  finalizarTarefa(tarefa: Tarefa) {
+    this.service.atualizarStatusTarefa(tarefa);
   }
 
   habilitarBotao(): string {
